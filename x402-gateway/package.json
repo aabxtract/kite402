@@ -1,0 +1,19 @@
+{
+  "name": "x402-gateway",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:proxy": "bun run --cwd apps/proxy dev",
+    "dev:web": "bun run --cwd apps/web dev",
+    "db:generate": "bun run --cwd packages/shared db:generate",
+    "db:push": "bun run --cwd packages/shared db:push"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5"
+  }
+}

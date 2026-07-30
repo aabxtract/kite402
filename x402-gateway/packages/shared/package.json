@@ -1,0 +1,21 @@
+{
+  "name": "@x402-gateway/shared",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./schema": "./src/schema.ts",
+    "./crypto": "./src/crypto.ts",
+    "./db": "./src/db.ts"
+  },
+  "scripts": {
+    "db:generate": "drizzle-kit generate --config=./src/drizzle.config.ts",
+    "db:push": "drizzle-kit push --config=./src/drizzle.config.ts"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.0",
+    "@neondatabase/serverless": "^1.1.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30.0"
+  }
+}
