@@ -9,8 +9,8 @@ import { HBAR_ASSET_ID, HEDERA_TESTNET_CAIP2, HEDERA_TESTNET_USDC } from '@x402/
 import { useHederaWalletConnect } from '../../../lib/useHederaWalletConnect';
 import { createHederaWalletConnectSigner } from '../../../lib/hederaWalletConnectSigner';
 import { BTN_PRIMARY } from '../../../lib/ui';
+import { PROXY_URL } from '../../../lib/proxyUrl';
 
-const PROXY_URL = process.env.NEXT_PUBLIC_PROXY_URL || 'http://localhost:3001';
 const TINYBARS_PER_HBAR = 100_000_000;
 const UNITS_PER_USDC = 1_000_000;
 

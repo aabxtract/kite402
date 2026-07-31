@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { ethers } from 'ethers';
+import { PROXY_URL } from './proxyUrl';
 
-const PROXY_URL = process.env.NEXT_PUBLIC_PROXY_URL || 'http://localhost:3001';
 const REGISTER_MESSAGE = 'Register Hedera Account';
 
 export interface UserRecord {

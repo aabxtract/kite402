@@ -27,6 +27,19 @@ export const endpoints = pgTable('endpoints', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+export const pendingWithdrawals = pgTable('pending_withdrawals', {
+  id: text('id').primaryKey(),
+  privyId: text('privy_id').notNull(),
+  fromAccountId: text('from_account_id').notNull(),
+  destination: text('destination').notNull(),
+  amountTinybars: text('amount_tinybars').notNull(),
+  feeTinybars: text('fee_tinybars').notNull(),
+  /** Base64 of the frozen TransferTransaction's `toBytes()` — round-tripped via `fromBytes()` at execute time. */
+  transactionBytes: text('transaction_bytes').notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
 export const accessLogs = pgTable('access_logs', {
   id: text('id').primaryKey(),
   endpointId: text('endpoint_id').notNull(),

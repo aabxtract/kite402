@@ -2,6 +2,9 @@
   "name": "@x402-gateway/proxy",
   "private": true,
   "type": "module",
+  "exports": {
+    "./app": "./src/app.ts"
+  },
   "scripts": {
     "dev": "bun run --watch src/index.ts",
     "start": "bun run src/index.ts"
@@ -13,7 +16,7 @@
     "@noble/curves": "^2.2.0",
     "@noble/hashes": "^2.2.0",
     "@privy-io/server-auth": "^1.32.5",
-    "@x402-gateway/shared": "file:../packages/shared",
+    "@x402-gateway/shared": "workspace:*",
     "@x402/core": "^2.19.0",
     "@x402/hedera": "^2.19.0",
     "@x402/hono": "^2.19.0",

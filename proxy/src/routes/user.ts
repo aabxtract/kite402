@@ -1,19 +1,20 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
+import { and, eq, lt } from 'drizzle-orm';
 import {
   AccountCreateTransaction,
   AccountId,
   Hbar,
   PublicKey,
+  Transaction,
   TransferTransaction,
   TransactionId,
   Status,
 } from '@hashgraph/sdk';
 import { keccak_256 } from '@noble/hashes/sha3.js';
 import { db } from '../db';
-import { users } from '@x402-gateway/shared/schema';
+import { pendingWithdrawals, users } from '@x402-gateway/shared/schema';
 import { requirePrivyAuth, fetchPrivyEmail } from '../services/privy';
 import {
   fetchBalances,
@@ -259,25 +260,14 @@ userRouter.get('/transactions', async (c) => {
 // and the signed transaction is submitted on the next call. Holding the frozen
 // transaction server-side (rather than round-tripping its bytes) is what stops
 // a client from stripping the platform fee leg before signing.
+//
+// Prepare and execute can land on different serverless instances, so the
+// frozen transaction is persisted (as `toBytes()`/`fromBytes()`) rather than
+// kept in an in-process Map — nothing here can rely on same-instance state.
 // ---------------------------------------------------------------------------
 
-interface PendingWithdrawal {
-  privyId: string;
-  transaction: TransferTransaction;
-  fromAccountId: string;
-  destination: string;
-  amountTinybars: number;
-  feeTinybars: number;
-  expiresAt: number;
-}
-
-const pendingWithdrawals = new Map<string, PendingWithdrawal>();
-
-function sweepExpired() {
-  const now = Date.now();
-  for (const [id, w] of pendingWithdrawals) {
-    if (w.expiresAt <= now) pendingWithdrawals.delete(id);
-  }
+async function sweepExpired() {
+  await db.delete(pendingWithdrawals).where(lt(pendingWithdrawals.expiresAt, new Date()));
 }
 
 const prepareSchema = z.object({
@@ -286,7 +276,7 @@ const prepareSchema = z.object({
 });
 
 userRouter.post('/withdraw/prepare', zValidator('json', prepareSchema), async (c) => {
-  sweepExpired();
+  await sweepExpired();
 
   const privyId = c.get('privyId');
   const user = await findUser(privyId);
@@ -352,15 +342,16 @@ userRouter.post('/withdraw/prepare', zValidator('json', prepareSchema), async (c
     .freezeWith(client);
 
   const withdrawalId = crypto.randomUUID();
-  const expiresAt = Date.now() + WITHDRAWAL_TTL_MS;
+  const expiresAt = new Date(Date.now() + WITHDRAWAL_TTL_MS);
 
-  pendingWithdrawals.set(withdrawalId, {
+  await db.insert(pendingWithdrawals).values({
+    id: withdrawalId,
     privyId,
-    transaction,
     fromAccountId: user.hederaAccountId,
     destination,
-    amountTinybars,
-    feeTinybars: WITHDRAWAL_FEE_TINYBARS,
+    amountTinybars: String(amountTinybars),
+    feeTinybars: String(WITHDRAWAL_FEE_TINYBARS),
+    transactionBytes: Buffer.from(transaction.toBytes()).toString('base64'),
     expiresAt,
   });
 
@@ -372,7 +363,7 @@ userRouter.post('/withdraw/prepare', zValidator('json', prepareSchema), async (c
     amountTinybars: String(amountTinybars),
     feeTinybars: String(WITHDRAWAL_FEE_TINYBARS),
     netTinybars: String(netTinybars),
-    expiresAt: new Date(expiresAt).toISOString(),
+    expiresAt: expiresAt.toISOString(),
   });
 });
 
@@ -382,17 +373,33 @@ const executeSchema = z.object({
 });
 
 userRouter.post('/withdraw/execute', zValidator('json', executeSchema), async (c) => {
-  sweepExpired();
+  await sweepExpired();
 
   const privyId = c.get('privyId');
   const { withdrawalId, signatureHex } = c.req.valid('json');
 
-  const pending = pendingWithdrawals.get(withdrawalId);
-  if (!pending || pending.privyId !== privyId) {
+  const pendingRow = await db
+    .select()
+    .from(pendingWithdrawals)
+    .where(and(eq(pendingWithdrawals.id, withdrawalId), eq(pendingWithdrawals.privyId, privyId)))
+    .limit(1)
+    .then((rows) => rows[0]);
+
+  if (!pendingRow) {
     return c.json({ error: 'Unknown or expired withdrawal. Prepare it again.' }, 404);
   }
   // Single-use: drop it before submitting so a retry can never double-spend.
-  pendingWithdrawals.delete(withdrawalId);
+  await db.delete(pendingWithdrawals).where(eq(pendingWithdrawals.id, withdrawalId));
+
+  const pending = {
+    fromAccountId: pendingRow.fromAccountId,
+    destination: pendingRow.destination,
+    amountTinybars: Number(pendingRow.amountTinybars),
+    feeTinybars: Number(pendingRow.feeTinybars),
+    transaction: Transaction.fromBytes(
+      Buffer.from(pendingRow.transactionBytes, 'base64'),
+    ) as TransferTransaction,
+  };
 
   const user = await findUser(privyId);
   if (!user?.hederaPublicKey) return c.json({ error: 'User not found' }, 404);

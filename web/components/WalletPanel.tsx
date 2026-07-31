@@ -5,8 +5,8 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useHederaAccount } from '../lib/useHederaAccount';
 import { BTN_PRIMARY } from '../lib/ui';
 import { Spinner } from './Spinner';
+import { PROXY_URL } from '../lib/proxyUrl';
 
-const PROXY_URL = process.env.NEXT_PUBLIC_PROXY_URL || 'http://localhost:3001';
 const TINYBARS_PER_HBAR = 100_000_000;
 
 export function WalletPanel() {

@@ -1,4 +1,4 @@
-import { Hono } from 'hono';
+import { Hono, type Context } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
@@ -11,6 +11,17 @@ import { optionalPrivyAuth } from '../services/privy';
 export const adminRouter = new Hono();
 
 adminRouter.use('*', optionalPrivyAuth);
+
+/**
+ * Public origin to build `protectedUrl` from. Prefers the incoming request's
+ * origin so Vercel preview/production deployments emit their own hostname
+ * without per-environment config; PROXY_BASE_URL still wins when set.
+ */
+function baseUrl(c: Context): string {
+  const configured = process.env.PROXY_BASE_URL;
+  if (configured) return configured.replace(/\/$/, '');
+  return new URL(c.req.url).origin;
+}
 
 function signedInUser(privyId: string | undefined) {
   if (!privyId) return Promise.resolve(undefined);
@@ -76,7 +87,7 @@ adminRouter.post('/endpoints', zValidator('json', createSchema), async (c) => {
 
   return c.json({
     slug,
-    protectedUrl: `${process.env.PROXY_BASE_URL}/p/${slug}`,
+    protectedUrl: `${baseUrl(c)}/p/${slug}`,
     priceHbar: body.priceHbar,
     priceUsdc: body.priceUsdc,
     expiresAt: body.expiresAt,
@@ -128,7 +139,7 @@ adminRouter.get('/endpoints', async (c) => {
     endpoints: rows.map((r) => ({
       ...r,
       requestCount: countMap.get(r.slug) ?? 0,
-      protectedUrl: `${process.env.PROXY_BASE_URL}/p/${r.slug}`,
+      protectedUrl: `${baseUrl(c)}/p/${r.slug}`,
     })),
   });
 });

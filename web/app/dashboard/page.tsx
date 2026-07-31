@@ -9,6 +9,7 @@ import { CreateEndpointForm } from '../../components/CreateEndpointForm';
 import { ConnectWalletCTA } from '../../components/ConnectWalletCTA';
 import { Modal } from '../../components/Modal';
 import { BTN_PRIMARY } from '../../lib/ui';
+import { PROXY_URL } from '../../lib/proxyUrl';
 
 interface Endpoint {
   slug: string;
@@ -37,7 +38,7 @@ export default function Dashboard() {
     setError(null);
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_PROXY_URL}/admin/endpoints?owner=${encodeURIComponent(account)}`
+        `${PROXY_URL}/admin/endpoints?owner=${encodeURIComponent(account)}`
       );
       const data = await res.json();
       if (!res.ok) {
@@ -59,7 +60,7 @@ export default function Dashboard() {
     setError(null);
     try {
       const token = await getAccessToken();
-      const res = await fetch(`${process.env.NEXT_PUBLIC_PROXY_URL}/admin/endpoints`, {
+      const res = await fetch(`${PROXY_URL}/admin/endpoints`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();

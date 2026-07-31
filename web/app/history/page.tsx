@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { ConnectWalletCTA } from '../../components/ConnectWalletCTA';
 import { Spinner } from '../../components/Spinner';
+import { PROXY_URL } from '../../lib/proxyUrl';
 
-const PROXY_URL = process.env.NEXT_PUBLIC_PROXY_URL || 'http://localhost:3001';
 const TINYBARS_PER_HBAR = 100_000_000;
 
 interface TokenTransfer {
