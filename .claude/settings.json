@@ -32,7 +32,8 @@
       "Bash(mkdir -p public)",
       "Bash(cp \"ChatGPT Image Jul 31, 2026, 10_18_19 AM.png\" public/logo.png)",
       "Bash(python -c ' *)",
-      "Bash(rm /tmp/add_click_count.ts)"
+      "Bash(rm /tmp/add_click_count.ts)",
+      "Bash(xargs grep -l \"HEDERA_TESTNET_USDC\")"
     ],
     "additionalDirectories": [
       "\\tmp"

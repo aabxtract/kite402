@@ -9,6 +9,7 @@ interface EndpointCardProps {
   createdAt: string | null;
   isActive: boolean | null;
   requestCount?: number | string;
+  clickCount?: number | string;
 }
 
 function formatPrice(units: string, factor: number): string {
@@ -24,6 +25,7 @@ export function EndpointCard({
   createdAt,
   isActive,
   requestCount,
+  clickCount,
 }: EndpointCardProps) {
   return (
     <div className="rounded-lg border border-line bg-surface p-4 font-mono text-sm">
@@ -44,7 +46,8 @@ export function EndpointCard({
         {priceHbar && <span className="text-mint">{formatPrice(priceHbar, 100_000_000)} HBAR</span>}
         {priceUsdc && <span className="text-mint">{formatPrice(priceUsdc, 1_000_000)} USDC</span>}
         <span>{maxRequestsPerDay ?? 1000} req/day cap</span>
-        {requestCount !== undefined && <span>{Number(requestCount)} paid requests</span>}
+        {requestCount !== undefined && <span>{Number(requestCount)} sales</span>}
+        {clickCount !== undefined && <span>{Number(clickCount)} clicks</span>}
         {createdAt && <span>created {new Date(createdAt).toLocaleDateString()}</span>}
       </div>
     </div>

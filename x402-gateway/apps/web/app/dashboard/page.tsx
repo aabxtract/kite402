@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
+import { Coins, MousePointerClick } from 'lucide-react';
 import { EndpointCard } from '../../components/EndpointCard';
 import { WalletPanel } from '../../components/WalletPanel';
 import { CreateEndpointForm } from '../../components/CreateEndpointForm';
@@ -18,6 +19,7 @@ interface Endpoint {
   createdAt: string | null;
   isActive: boolean | null;
   requestCount?: number | string;
+  clickCount?: number | string;
 }
 
 export default function Dashboard() {
@@ -159,6 +161,29 @@ export default function Dashboard() {
       )}
 
       {authenticated && <WalletPanel />}
+
+      {authenticated && endpoints.length > 0 && (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center gap-3 rounded-lg border border-line p-4">
+            <Coins className="h-5 w-5 text-mint" strokeWidth={1.75} />
+            <div>
+              <p className="font-display text-xl font-semibold tracking-tight">
+                {endpoints.reduce((sum, ep) => sum + Number(ep.requestCount ?? 0), 0)}
+              </p>
+              <p className="font-sans text-xs text-dim">total sales</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 rounded-lg border border-line p-4">
+            <MousePointerClick className="h-5 w-5 text-ink/70" strokeWidth={1.75} />
+            <div>
+              <p className="font-display text-xl font-semibold tracking-tight">
+                {endpoints.reduce((sum, ep) => sum + Number(ep.clickCount ?? 0), 0)}
+              </p>
+              <p className="font-sans text-xs text-dim">total clicks</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {error && (
         <p role="alert" className="max-w-md rounded-md border border-alert/40 bg-alert/10 px-3 py-2 font-sans text-sm text-alert">
