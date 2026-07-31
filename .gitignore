@@ -4,5 +4,3 @@ node_modules/
 dist/
 .next/
 drizzle/
-.claude/
-.agents/    
