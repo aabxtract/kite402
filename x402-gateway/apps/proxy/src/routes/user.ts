@@ -162,7 +162,6 @@ userRouter.get('/transactions', async (c) => {
       name: string;
       result: string;
       transfers?: { account: string; amount: number }[];
-      token_transfers?: { token_id: string; account: string; amount: number }[];
     }[];
   };
   try {
@@ -173,24 +172,14 @@ userRouter.get('/transactions', async (c) => {
     return c.json({ error: `Could not load transaction history: ${message(e)}` }, 502);
   }
 
-  const usdcTokenId = process.env.HEDERA_NETWORK === 'mainnet' ? '0.0.456858' : '0.0.429274';
-
   const transactions = (data.transactions ?? []).map((tx) => {
     const own = tx.transfers?.find((t) => t.account === user.hederaAccountId);
-    const ownTokenTransfers = (tx.token_transfers ?? []).filter((t) => t.account === user.hederaAccountId);
-
     return {
       transactionId: tx.transaction_id,
       consensusTimestamp: tx.consensus_timestamp,
       type: tx.name,
       status: tx.result,
       netTinybars: String(own?.amount ?? 0),
-      tokenTransfers: ownTokenTransfers.map((t) => ({
-        tokenId: t.token_id,
-        symbol: t.token_id === usdcTokenId ? 'USDC' : t.token_id,
-        decimals: t.token_id === usdcTokenId ? 6 : 0,
-        amount: String(t.amount),
-      })),
       hashscanUrl: hashscanUrl('transaction', tx.transaction_id),
     };
   });

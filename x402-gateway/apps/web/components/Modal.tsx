@@ -1,9 +1,14 @@
 'use client';
 
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 export function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
@@ -13,9 +18,9 @@ export function Modal({ open, onClose, children }: { open: boolean; onClose: () 
     return () => document.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div aria-hidden onClick={onClose} className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
       <div className="relative max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-line bg-paper p-6 shadow-[0_24px_64px_rgba(0,0,0,0.18)] sm:p-8">
@@ -28,6 +33,7 @@ export function Modal({ open, onClose, children }: { open: boolean; onClose: () 
         </button>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
