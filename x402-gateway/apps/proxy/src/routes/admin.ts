@@ -108,6 +108,7 @@ adminRouter.get('/endpoints', async (c) => {
       expiresAt: endpoints.expiresAt,
       isActive: endpoints.isActive,
       createdAt: endpoints.createdAt,
+      clickCount: endpoints.clickCount,
     })
     .from(endpoints)
     .where(filter)

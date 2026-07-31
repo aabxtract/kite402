@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.\\(tsx|ts|jsx|js\\)$\")",
+      "Bash(python \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"dev tool crypto payments landing page hero cta\" --domain landing)",
+      "Bash(python \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"developer tool API platform saas dark\" --domain product)",
+      "Bash(python \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"dashboard onboarding wallet connect flow\" --domain ux)",
+      "Bash(npx tsc *)",
+      "Bash(bun --version)",
+      "Bash(tasklist)",
+      "Bash(wmic process *)",
+      "Bash(taskkill //F //PID 16968)",
+      "Bash(taskkill //F //PID 12472)",
+      "Bash(ls -la \"/c/Users/ANUOLU~1/AppData/Local/Temp/claude/c--Users-anuoluwapo-OneDrive-Desktop-kite402/6c700584-7842-4caa-9bc7-163060913372/tasks/\" 2>&1 | tail -10)",
+      "Read(//c/Users/ANUOLU~1/AppData/Local/Temp/claude/c--Users-anuoluwapo-OneDrive-Desktop-kite402/6c700584-7842-4caa-9bc7-163060913372/tasks//**)",
+      "Bash(cat \"/c/Users/ANUOLU~1/AppData/Local/Temp/claude/c--Users-anuoluwapo-OneDrive-Desktop-kite402/6c700584-7842-4caa-9bc7-163060913372/tasks/bqv1fb2bj.output\")",
+      "Read(//c/Users/ANUOLU~1/AppData/Local/Temp/claude/c--Users-anuoluwapo-OneDrive-Desktop-kite402/6c700584-7842-4caa-9bc7-163060913372/tasks/**)",
+      "Bash(bun run *)",
+      "Bash(disown)",
+      "Read(//tmp/**)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3001/)",
+      "Bash(taskkill //F //PID 4148)",
+      "Bash(taskkill //F //PID 17668)",
+      "Bash(taskkill //F //PID 15772)",
+      "Bash(curl -s -o /dev/null -w \"home: %{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w \"dashboard: %{http_code}\\\\n\" http://localhost:3000/dashboard)",
+      "Bash(npx --yes chromium-cli --help)",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(sleep 100; cat /tmp/build2.log)",
+      "Bash(sleep 60; cat /tmp/build2.log)",
+      "Bash(mkdir -p public)",
+      "Bash(cp \"ChatGPT Image Jul 31, 2026, 10_18_19 AM.png\" public/logo.png)",
+      "Bash(python -c ' *)",
+      "Bash(rm /tmp/add_click_count.ts)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
+    ]
+  }
+}

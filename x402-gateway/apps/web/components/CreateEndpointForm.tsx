@@ -3,6 +3,8 @@
 import { useEffect, useState, type ChangeEvent } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useHederaAccount } from '../lib/useHederaAccount';
+import { BTN_PRIMARY } from '../lib/ui';
+import { Spinner } from './Spinner';
 
 const PROXY_URL = process.env.NEXT_PUBLIC_PROXY_URL || 'http://localhost:3001';
 
@@ -30,13 +32,13 @@ function fromSmallestUnit(value: string | undefined, factor: number): string | n
 }
 
 const inputClass =
-  'w-full rounded-md border border-line bg-ink px-3 py-2.5 font-mono text-sm text-paper placeholder:text-dim/60 focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition-colors';
+  'w-full rounded-md border border-line bg-paper px-3 py-2.5 font-sans text-sm text-ink placeholder:text-dim focus:outline-none focus:ring-1 focus:ring-amber/50 transition-colors';
 
-const labelClass = 'block font-mono text-xs text-dim';
+const labelClass = 'block font-sans text-sm text-dim';
 
-export function CreateEndpointForm() {
+export function CreateEndpointForm({ onCreated }: { onCreated?: () => void } = {}) {
   const { authenticated, getAccessToken } = usePrivy();
-  const { userRecord, isSyncing, syncError } = useHederaAccount();
+  const { userRecord, syncError } = useHederaAccount();
   const linkedAccountId = userRecord?.hederaAccountId ?? null;
   const [url, setUrl] = useState('');
   const [owner, setOwner] = useState('');
@@ -96,6 +98,7 @@ export function CreateEndpointForm() {
       }
       setResult(data as CreateResult);
       setCopied(null);
+      onCreated?.();
     } catch {
       setError('Gateway unreachable. Is the proxy running on port 3001?');
     } finally {
@@ -130,19 +133,19 @@ export function CreateEndpointForm() {
             your Hedera account (receives payments)
           </label>
           {authenticated ? (
-            <p
-              className={`rounded-md border px-3 py-2.5 font-mono text-sm ${
-                linkedAccountId
-                  ? 'border-line bg-ink text-mint'
-                  : syncError
-                    ? 'border-alert/40 bg-alert/10 text-alert'
-                    : 'border-line bg-ink text-dim/70'
-              }`}
-            >
-              {linkedAccountId ??
-                syncError ??
-                (isSyncing ? 'provisioning your embedded account… (approve the signature request)' : 'waiting to sync…')}
-            </p>
+            linkedAccountId ? (
+              <p className="rounded-md border border-line bg-ink px-3 py-2.5 font-mono text-sm text-mint">
+                {linkedAccountId}
+              </p>
+            ) : syncError ? (
+              <p className="rounded-md border border-alert/40 bg-alert/10 px-3 py-2.5 font-mono text-sm text-alert">
+                {syncError}
+              </p>
+            ) : (
+              <div className="flex items-center justify-center rounded-md border border-line bg-ink px-3 py-2.5">
+                <Spinner className="h-4 w-4 text-paper" />
+              </div>
+            )
           ) : (
             <input
               id="owner"
@@ -222,11 +225,7 @@ export function CreateEndpointForm() {
           </p>
         )}
 
-        <button
-          onClick={handleCreate}
-          disabled={!canSubmit}
-          className="w-full cursor-pointer rounded-md bg-amber px-4 py-3 font-mono text-sm font-bold text-ink transition-colors hover:bg-amber/85 disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
-        >
+        <button onClick={handleCreate} disabled={!canSubmit} className={`w-full ${BTN_PRIMARY}`}>
           {loading ? 'creating…' : 'Generate protected URL'}
         </button>
       </div>
@@ -242,7 +241,7 @@ export function CreateEndpointForm() {
             </p>
             <button
               onClick={() => copyUrl(result.protectedUrl, 'agent')}
-              className="mt-2 w-full cursor-pointer rounded-md border border-mint/50 px-4 py-2 text-xs font-bold text-mint transition-colors hover:bg-mint/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-mint"
+              className="mt-2 w-full cursor-pointer rounded-md border border-mint/50 px-4 py-2 text-xs font-semibold text-mint transition-colors hover:bg-mint/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-mint"
             >
               {copied === 'agent' ? 'copied ✓' : 'copy agent URL'}
             </button>
@@ -255,7 +254,7 @@ export function CreateEndpointForm() {
               onClick={() =>
                 copyUrl(`${window.location.origin}/pay/${result.slug}`, 'human')
               }
-              className="mt-2 w-full cursor-pointer rounded-md border border-amber/50 px-4 py-2 text-xs font-bold text-amber transition-colors hover:bg-amber/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber"
+              className="mt-2 w-full cursor-pointer rounded-md border border-mint/50 px-4 py-2 text-xs font-semibold text-mint transition-colors hover:bg-mint/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-mint"
             >
               {copied === 'human' ? 'copied ✓' : 'copy human URL'}
             </button>

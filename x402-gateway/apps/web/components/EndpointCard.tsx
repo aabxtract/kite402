@@ -30,7 +30,7 @@ export function EndpointCard({
       <div className="flex items-center justify-between gap-4">
         <span className="text-xs text-dim">/{slug}</span>
         <span
-          className={`text-xs font-bold ${isActive ? 'text-mint' : 'text-alert'}`}
+          className={`text-xs font-semibold ${isActive ? 'text-mint' : 'text-alert'}`}
         >
           {isActive ? '● live' : '● inactive'}
         </span>
@@ -41,8 +41,8 @@ export function EndpointCard({
       </p>
 
       <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-dim">
-        {priceHbar && <span className="text-amber">{formatPrice(priceHbar, 100_000_000)} HBAR</span>}
-        {priceUsdc && <span className="text-amber">{formatPrice(priceUsdc, 1_000_000)} USDC</span>}
+        {priceHbar && <span className="text-mint">{formatPrice(priceHbar, 100_000_000)} HBAR</span>}
+        {priceUsdc && <span className="text-mint">{formatPrice(priceUsdc, 1_000_000)} USDC</span>}
         <span>{maxRequestsPerDay ?? 1000} req/day cap</span>
         {requestCount !== undefined && <span>{Number(requestCount)} paid requests</span>}
         {createdAt && <span>created {new Date(createdAt).toLocaleDateString()}</span>}

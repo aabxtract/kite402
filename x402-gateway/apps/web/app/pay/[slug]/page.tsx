@@ -8,6 +8,7 @@ import { ExactHederaScheme } from '@x402/hedera/exact/client';
 import { HBAR_ASSET_ID, HEDERA_TESTNET_CAIP2, HEDERA_TESTNET_USDC } from '@x402/hedera';
 import { useHederaWalletConnect } from '../../../lib/useHederaWalletConnect';
 import { createHederaWalletConnectSigner } from '../../../lib/hederaWalletConnectSigner';
+import { BTN_PRIMARY } from '../../../lib/ui';
 
 const PROXY_URL = process.env.NEXT_PUBLIC_PROXY_URL || 'http://localhost:3001';
 const TINYBARS_PER_HBAR = 100_000_000;
@@ -116,7 +117,7 @@ export default function PayPage() {
     <div className="mx-auto max-w-lg space-y-6 py-12">
       <div className="space-y-1">
         <p className="font-mono text-xs text-dim">x402 paywall</p>
-        <h1 className="font-display text-2xl font-bold tracking-tight">Unlock this content</h1>
+        <h1 className="font-display text-2xl font-semibold tracking-tight">Unlock this content</h1>
       </div>
 
       {loadingChallenge && <p className="font-mono text-sm text-dim">Checking price…</p>}
@@ -147,7 +148,7 @@ export default function PayPage() {
           <div className="space-y-4 rounded-lg border border-line bg-surface p-5">
             <div className="space-y-1">
               <p className="font-mono text-xs text-dim">price</p>
-              <p className="font-display text-2xl font-bold tracking-tight">
+              <p className="font-display text-2xl font-semibold tracking-tight">
                 {formatPrice(challenge.accepts[0].asset, challenge.accepts[0].amount)}
               </p>
             </div>
@@ -169,7 +170,7 @@ export default function PayPage() {
             <button
               onClick={handlePayAndUnlock}
               disabled={connecting || paying}
-              className="w-full cursor-pointer rounded-md bg-amber px-4 py-3 font-mono text-sm font-bold text-ink transition-colors hover:bg-amber/85 disabled:cursor-not-allowed disabled:opacity-40"
+              className={`w-full ${BTN_PRIMARY}`}
             >
               {connecting ? 'connecting…' : paying ? 'paying…' : accountId ? 'pay & unlock' : 'connect wallet & pay'}
             </button>

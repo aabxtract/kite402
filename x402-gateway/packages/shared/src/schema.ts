@@ -22,6 +22,8 @@ export const endpoints = pgTable('endpoints', {
   expiresAt: timestamp('expires_at'),
   allowlist: jsonb('allowlist'),
   isActive: boolean('is_active').default(true),
+  /** Every hit to /p/:slug, paid or not — distinct from accessLogs, which only records paid completions. */
+  clickCount: integer('click_count').default(0),
   createdAt: timestamp('created_at').defaultNow(),
 });
 

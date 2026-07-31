@@ -1,10 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import Link from 'next/link';
 import { usePrivy } from '@privy-io/react-auth';
 import { EndpointCard } from '../../components/EndpointCard';
 import { WalletPanel } from '../../components/WalletPanel';
+import { CreateEndpointForm } from '../../components/CreateEndpointForm';
+import { ConnectWalletCTA } from '../../components/ConnectWalletCTA';
+import { Modal } from '../../components/Modal';
+import { BTN_PRIMARY } from '../../lib/ui';
 
 interface Endpoint {
   slug: string;
@@ -21,6 +24,8 @@ export default function Dashboard() {
   const { ready, authenticated, getAccessToken } = usePrivy();
   const [owner, setOwner] = useState('');
   const [input, setInput] = useState('');
+  const [showLookup, setShowLookup] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -80,6 +85,7 @@ export default function Dashboard() {
     if (saved) {
       setOwner(saved);
       setInput(saved);
+      setShowLookup(true);
       load(saved);
     }
   }, [ready, authenticated, load, loadForSignedInUser]);
@@ -92,67 +98,110 @@ export default function Dashboard() {
     load(account);
   }
 
+  function refreshEndpoints() {
+    if (authenticated) {
+      loadForSignedInUser();
+    } else if (owner) {
+      load(owner);
+    }
+  }
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <div className="space-y-2">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">Your endpoints</h1>
+        <h1 className="font-display text-3xl font-semibold tracking-tight">Dashboard</h1>
         <p className="text-sm text-dim">
           {authenticated
-            ? 'Endpoints and earnings linked to your signed-in account.'
-            : 'Look up the paid endpoints registered to a Hedera account.'}
+            ? 'Your wallet, your paid endpoints, and everything they earn.'
+            : 'Connect your wallet to register endpoints and track earnings.'}
         </p>
       </div>
 
-      {authenticated && <WalletPanel />}
+      {!ready && (
+        <div className="h-32 animate-pulse rounded-lg border border-line bg-surface" />
+      )}
 
-      {!authenticated && (
-        <div className="flex max-w-md gap-2">
-          <label htmlFor="owner-lookup" className="sr-only">
-            Hedera account ID
-          </label>
-          <input
-            id="owner-lookup"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleLookup()}
-            placeholder="0.0.12345"
-            className="w-full rounded-md border border-line bg-surface px-3 py-2.5 font-mono text-sm text-paper placeholder:text-dim/60 focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition-colors"
-          />
+      {ready && !authenticated && (
+        <div className="space-y-4 rounded-lg border border-dashed border-line p-8 text-center">
+          <p className="font-sans text-sm text-dim">
+            Sign in to provision an embedded Hedera account, register endpoints, and view your
+            balance — all from here.
+          </p>
+          <div className="flex justify-center">
+            <ConnectWalletCTA />
+          </div>
           <button
-            onClick={handleLookup}
-            disabled={!input.trim() || loading}
-            className="cursor-pointer rounded-md bg-amber px-4 py-2.5 font-mono text-sm font-bold text-ink transition-colors hover:bg-amber/85 disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
+            onClick={() => setShowLookup((v) => !v)}
+            className="cursor-pointer font-sans text-sm text-dim underline underline-offset-2 hover:text-ink transition-colors"
           >
-            {loading ? '…' : 'look up'}
+            {showLookup ? 'hide' : 'or look up an account without signing in'}
           </button>
+
+          {showLookup && (
+            <div className="mx-auto flex max-w-md gap-2 pt-2 text-left">
+              <label htmlFor="owner-lookup" className="sr-only">
+                Hedera account ID
+              </label>
+              <input
+                id="owner-lookup"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleLookup()}
+                placeholder="0.0.12345"
+                className="w-full rounded-md border border-line bg-paper px-3 py-2.5 font-sans text-sm text-ink placeholder:text-dim focus:outline-none focus:ring-1 focus:ring-amber/50 transition-colors"
+              />
+              <button onClick={handleLookup} disabled={!input.trim() || loading} className={BTN_PRIMARY}>
+                {loading ? '…' : 'look up'}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
+      {authenticated && <WalletPanel />}
+
       {error && (
-        <p role="alert" className="max-w-md rounded-md border border-alert/40 bg-alert/10 px-3 py-2 font-mono text-xs text-alert">
+        <p role="alert" className="max-w-md rounded-md border border-alert/40 bg-alert/10 px-3 py-2 font-sans text-sm text-alert">
           {error}
         </p>
       )}
 
-      {!loading && (authenticated || owner) && !error && endpoints.length === 0 && (
-        <div className="rounded-lg border border-dashed border-line p-8 text-center">
-          <p className="font-mono text-sm text-dim">
-            {authenticated ? 'No endpoints yet.' : `No endpoints for ${owner} yet.`}
-          </p>
-          <Link
-            href="/#create"
-            className="mt-2 inline-block font-mono text-xs text-amber underline underline-offset-2 hover:text-amber/80"
-          >
-            create your first one →
-          </Link>
-        </div>
+      {(authenticated || owner) && (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="font-display text-xl font-semibold tracking-tight">Your links</h2>
+            {authenticated && (
+              <button onClick={() => setShowCreateModal(true)} className={BTN_PRIMARY}>
+                Create 402 link
+              </button>
+            )}
+          </div>
+
+          {!loading && !error && endpoints.length === 0 && (
+            <div className="rounded-lg border border-dashed border-line p-8 text-center">
+              <p className="font-sans text-sm text-dim">
+                {authenticated ? 'No links yet — create one above.' : `No endpoints for ${owner} yet.`}
+              </p>
+            </div>
+          )}
+
+          <div className="space-y-3">
+            {endpoints.map((ep) => (
+              <EndpointCard key={ep.slug} {...ep} />
+            ))}
+          </div>
+        </section>
       )}
 
-      <div className="space-y-3">
-        {endpoints.map((ep) => (
-          <EndpointCard key={ep.slug} {...ep} />
-        ))}
-      </div>
+      <Modal open={showCreateModal} onClose={() => setShowCreateModal(false)}>
+        <div className="space-y-4">
+          <div className="flex items-baseline gap-3">
+            <h2 className="font-display text-xl font-semibold tracking-tight">Register a new endpoint</h2>
+            <span className="font-sans text-xs text-dim">~10 seconds</span>
+          </div>
+          <CreateEndpointForm onCreated={refreshEndpoints} />
+        </div>
+      </Modal>
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { paymentMiddlewareFromHTTPServer } from '@x402/hono';
 import { ExactHederaScheme } from '@x402/hedera/exact/server';
 import { HEDERA_TESTNET_CAIP2, HBAR_ASSET_ID, HEDERA_TESTNET_USDC, inspectHederaTransaction } from '@x402/hedera';
 import type { MiddlewareHandler } from 'hono';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { endpoints } from '@x402-gateway/shared/schema';
 
@@ -40,7 +40,15 @@ export function createDynamicPaymentMiddleware(): MiddlewareHandler {
 
     const rows = await db.select().from(endpoints).where(eq(endpoints.id, slug)).limit(1);
     const ep = rows[0];
-    if (!ep || !ep.isActive) return c.json({ error: 'Endpoint not found' }, 404);
+    if (!ep) return c.json({ error: 'Endpoint not found' }, 404);
+
+    // Every hit counts as a click, paid or not — fire-and-forget so it never adds latency.
+    db.update(endpoints)
+      .set({ clickCount: sql`${endpoints.clickCount} + 1` })
+      .where(eq(endpoints.id, slug))
+      .catch((e) => console.warn('click count update failed:', e));
+
+    if (!ep.isActive) return c.json({ error: 'Endpoint not found' }, 404);
     if (ep.expiresAt && new Date() > ep.expiresAt) return c.json({ error: 'Endpoint expired' }, 410);
 
     let payTo = process.env.HEDERA_ACCOUNT_ID!;

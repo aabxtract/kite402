@@ -141,6 +141,53 @@ userRouter.get('/me', async (c) => {
 });
 
 // ---------------------------------------------------------------------------
+// GET /api/user/transactions — on-chain history for the embedded account, read
+// straight from the Hedera mirror node (nothing is persisted locally).
+// ---------------------------------------------------------------------------
+
+userRouter.get('/transactions', async (c) => {
+  const privyId = c.get('privyId');
+  const user = await findUser(privyId);
+  if (!user?.hederaAccountId) {
+    return c.json({ error: 'No embedded Hedera account provisioned for this user' }, 404);
+  }
+
+  const network = process.env.HEDERA_NETWORK === 'mainnet' ? 'mainnet-public' : 'testnet';
+  const url = `https://${network}.mirrornode.hedera.com/api/v1/accounts/${user.hederaAccountId}/transactions?limit=25&order=desc`;
+
+  let data: {
+    transactions?: {
+      transaction_id: string;
+      consensus_timestamp: string;
+      name: string;
+      result: string;
+      transfers?: { account: string; amount: number }[];
+    }[];
+  };
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Mirror node returned ${res.status}`);
+    data = await res.json();
+  } catch (e) {
+    return c.json({ error: `Could not load transaction history: ${message(e)}` }, 502);
+  }
+
+  const transactions = (data.transactions ?? []).map((tx) => {
+    const own = tx.transfers?.find((t) => t.account === user.hederaAccountId);
+    return {
+      transactionId: tx.transaction_id,
+      consensusTimestamp: tx.consensus_timestamp,
+      type: tx.name,
+      status: tx.result,
+      netTinybars: String(own?.amount ?? 0),
+      hashscanUrl: hashscanUrl('transaction', tx.transaction_id),
+    };
+  });
+
+  return c.json({ transactions });
+});
+
+// ---------------------------------------------------------------------------
 // Withdrawals — atomic 3-leg transfer, signed by the user's embedded wallet
 //
 // The gateway never holds the user's key, so the transfer is built and frozen

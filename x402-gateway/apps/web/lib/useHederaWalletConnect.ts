@@ -26,7 +26,7 @@ function getConnector(): Promise<DAppConnector> {
   connectorPromise ??= (async () => {
     const connector = new DAppConnector(
       {
-        name: 'x402 Gateway',
+        name: 'kite402',
         description: 'Pay for x402-protected endpoints with a Hedera wallet',
         url: typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000',
         icons: [],

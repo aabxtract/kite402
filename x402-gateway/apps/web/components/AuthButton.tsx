@@ -1,13 +1,14 @@
 'use client';
 
 import { usePrivy } from '@privy-io/react-auth';
+import { BTN_GHOST, BTN_PRIMARY } from '../lib/ui';
 
 export function AuthButton() {
   const { ready, authenticated, login, logout, user } = usePrivy();
 
   if (!ready) {
     return (
-      <div className="h-9 w-20 animate-pulse rounded-md bg-surface" />
+      <div className="h-9 w-24 animate-pulse rounded-md bg-raised" />
     );
   }
 
@@ -20,23 +21,17 @@ export function AuthButton() {
 
     return (
       <div className="flex items-center gap-3">
-        <span className="hidden sm:inline font-mono text-xs text-dim">{label}</span>
-        <button
-          onClick={logout}
-          className="cursor-pointer rounded-md border border-line px-3 py-1.5 font-mono text-xs text-dim transition-colors hover:border-alert/50 hover:text-alert focus:outline-none"
-        >
-          sign out
+        <span className="hidden sm:inline font-sans text-sm text-dim">{label}</span>
+        <button onClick={logout} className={BTN_GHOST}>
+          Sign out
         </button>
       </div>
     );
   }
 
   return (
-    <button
-      onClick={login}
-      className="cursor-pointer rounded-md bg-amber px-4 py-1.5 font-mono text-xs font-bold text-ink transition-colors hover:bg-amber/85 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
-    >
-      sign in
+    <button onClick={login} className={BTN_PRIMARY}>
+      Connect wallet
     </button>
   );
 }
