@@ -8,12 +8,20 @@ import { Spinner } from '../../components/Spinner';
 const PROXY_URL = process.env.NEXT_PUBLIC_PROXY_URL || 'http://localhost:3001';
 const TINYBARS_PER_HBAR = 100_000_000;
 
+interface TokenTransfer {
+  tokenId: string;
+  symbol: string;
+  decimals: number;
+  amount: string;
+}
+
 interface Transaction {
   transactionId: string;
   consensusTimestamp: string;
   type: string;
   status: string;
   netTinybars: string;
+  tokenTransfers: TokenTransfer[];
   hashscanUrl: string;
 }
 
@@ -23,12 +31,22 @@ function formatHbar(tinybars: string): string {
   return `${sign}${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })} HBAR`;
 }
 
+function formatToken(transfer: TokenTransfer): string {
+  const n = Number(transfer.amount) / 10 ** transfer.decimals;
+  const sign = n > 0 ? '+' : '';
+  return `${sign}${n.toLocaleString('en-US', { maximumFractionDigits: transfer.decimals })} ${transfer.symbol}`;
+}
+
 function formatDate(consensusTimestamp: string): string {
   const seconds = Number(consensusTimestamp.split('.')[0]);
   return new Date(seconds * 1000).toLocaleString('en-US', {
     dateStyle: 'medium',
     timeStyle: 'short',
   });
+}
+
+function amountColor(n: number): string {
+  return n > 0 ? 'text-mint' : n < 0 ? 'text-ink' : 'text-dim';
 }
 
 export default function History() {
@@ -99,30 +117,43 @@ export default function History() {
 
       {authenticated && !loading && !error && transactions.length > 0 && (
         <div className="space-y-3">
-          {transactions.map((tx) => (
-            <a
-              key={tx.transactionId}
-              href={tx.hashscanUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between gap-4 rounded-xl border border-line p-4 transition-opacity hover:opacity-80"
-            >
-              <div className="space-y-1">
-                <p className="font-sans text-sm text-ink">{tx.type.replaceAll('_', ' ').toLowerCase()}</p>
-                <p className="font-sans text-xs text-dim">{formatDate(tx.consensusTimestamp)}</p>
-              </div>
-              <div className="text-right">
-                <p
-                  className={`font-mono text-sm font-medium ${
-                    Number(tx.netTinybars) >= 0 ? 'text-mint' : 'text-ink'
-                  }`}
-                >
-                  {formatHbar(tx.netTinybars)}
-                </p>
-                <p className="font-sans text-xs text-dim">{tx.status.toLowerCase()}</p>
-              </div>
-            </a>
-          ))}
+          {transactions.map((tx) => {
+            const hasHbar = Number(tx.netTinybars) !== 0;
+            const hasTokens = tx.tokenTransfers.length > 0;
+
+            return (
+              <a
+                key={tx.transactionId}
+                href={tx.hashscanUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block rounded-xl border border-line p-4 transition-opacity hover:opacity-80"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <p className="font-sans text-sm text-ink">{tx.type.replaceAll('_', ' ').toLowerCase()}</p>
+                    <p className="font-sans text-xs text-dim">{formatDate(tx.consensusTimestamp)}</p>
+                  </div>
+                  <p className="font-sans text-xs text-dim">{tx.status.toLowerCase()}</p>
+                </div>
+
+                {(hasHbar || hasTokens) && (
+                  <div className="mt-3 space-y-1 border-t border-line pt-3 text-right">
+                    {hasHbar && (
+                      <p className={`font-mono text-sm font-medium ${amountColor(Number(tx.netTinybars))}`}>
+                        {formatHbar(tx.netTinybars)}
+                      </p>
+                    )}
+                    {tx.tokenTransfers.map((t) => (
+                      <p key={t.tokenId} className={`font-mono text-sm font-medium ${amountColor(Number(t.amount))}`}>
+                        {formatToken(t)}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </a>
+            );
+          })}
         </div>
       )}
     </div>
