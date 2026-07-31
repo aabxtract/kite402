@@ -33,7 +33,12 @@
       "Bash(cp \"ChatGPT Image Jul 31, 2026, 10_18_19 AM.png\" public/logo.png)",
       "Bash(python -c ' *)",
       "Bash(rm /tmp/add_click_count.ts)",
-      "Bash(xargs grep -l \"HEDERA_TESTNET_USDC\")"
+      "Bash(xargs grep -l \"HEDERA_TESTNET_USDC\")",
+      "Bash(node_modules/.bin/tsc --noEmit -p tsconfig.json)",
+      "Bash(git ls-files *)",
+      "Bash(grep -E \"^x402-gateway/[^/]+$\")",
+      "Bash(grep -rln \"\\\\.\\\\./\\\\.\\\\./packages\\\\|x402-gateway/apps\\\\|apps/proxy\\\\|apps/web\" --include=\"*.json\" --include=\"*.ts\" --include=\"*.tsx\" --include=\"*.md\" x402-gateway)",
+      "Bash(grep -n \"PATH\\\\|\\\\.\\\\./\\\\|/apps/\\\\|x402-gateway\" .env)"
     ],
     "additionalDirectories": [
       "\\tmp"

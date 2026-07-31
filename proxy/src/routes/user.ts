@@ -145,6 +145,54 @@ userRouter.get('/me', async (c) => {
 // straight from the Hedera mirror node (nothing is persisted locally).
 // ---------------------------------------------------------------------------
 
+interface MirrorTransfer {
+  account: string;
+  amount: number;
+}
+
+interface MirrorTokenTransfer {
+  token_id: string;
+  account: string;
+  amount: number;
+}
+
+interface MirrorTransaction {
+  transaction_id: string;
+  consensus_timestamp: string;
+  name: string;
+  result: string;
+  transfers?: MirrorTransfer[];
+  token_transfers?: MirrorTokenTransfer[];
+}
+
+interface MirrorTransactionsResponse {
+  transactions?: MirrorTransaction[];
+}
+
+/** Best-effort symbol/decimals lookup so token transfers don't render as raw token ids. */
+async function fetchTokenInfo(
+  mirrorBase: string,
+  tokenIds: Set<string>,
+): Promise<Map<string, { symbol: string; decimals: number }>> {
+  const info = new Map<string, { symbol: string; decimals: number }>();
+  await Promise.all(
+    [...tokenIds].map(async (tokenId) => {
+      try {
+        const res = await fetch(`${mirrorBase}/api/v1/tokens/${tokenId}`);
+        if (!res.ok) return;
+        const json = (await res.json()) as { symbol?: string; decimals?: string };
+        info.set(tokenId, {
+          symbol: json.symbol ?? tokenId,
+          decimals: json.decimals ? Number(json.decimals) : 0,
+        });
+      } catch {
+        // fall back to the raw token id / zero decimals below
+      }
+    }),
+  );
+  return info;
+}
+
 userRouter.get('/transactions', async (c) => {
   const privyId = c.get('privyId');
   const user = await findUser(privyId);
@@ -153,33 +201,49 @@ userRouter.get('/transactions', async (c) => {
   }
 
   const network = process.env.HEDERA_NETWORK === 'mainnet' ? 'mainnet-public' : 'testnet';
-  const url = `https://${network}.mirrornode.hedera.com/api/v1/accounts/${user.hederaAccountId}/transactions?limit=25&order=desc`;
+  const mirrorBase = `https://${network}.mirrornode.hedera.com`;
+  const url = `${mirrorBase}/api/v1/accounts/${user.hederaAccountId}/transactions?limit=25&order=desc`;
 
-  let data: {
-    transactions?: {
-      transaction_id: string;
-      consensus_timestamp: string;
-      name: string;
-      result: string;
-      transfers?: { account: string; amount: number }[];
-    }[];
-  };
+  let data: MirrorTransactionsResponse;
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Mirror node returned ${res.status}`);
-    data = await res.json();
+    data = (await res.json()) as MirrorTransactionsResponse;
   } catch (e) {
     return c.json({ error: `Could not load transaction history: ${message(e)}` }, 502);
   }
 
-  const transactions = (data.transactions ?? []).map((tx) => {
+  const rawTransactions = data.transactions ?? [];
+
+  const tokenIds = new Set<string>();
+  for (const tx of rawTransactions) {
+    for (const tt of tx.token_transfers ?? []) {
+      if (tt.account === user.hederaAccountId) tokenIds.add(tt.token_id);
+    }
+  }
+  const tokenInfo = await fetchTokenInfo(mirrorBase, tokenIds);
+
+  const transactions = rawTransactions.map((tx) => {
     const own = tx.transfers?.find((t) => t.account === user.hederaAccountId);
+    const ownTokenTransfers = (tx.token_transfers ?? []).filter(
+      (t) => t.account === user.hederaAccountId,
+    );
+
     return {
       transactionId: tx.transaction_id,
       consensusTimestamp: tx.consensus_timestamp,
       type: tx.name,
       status: tx.result,
       netTinybars: String(own?.amount ?? 0),
+      tokenTransfers: ownTokenTransfers.map((t) => {
+        const info = tokenInfo.get(t.token_id);
+        return {
+          tokenId: t.token_id,
+          symbol: info?.symbol ?? t.token_id,
+          decimals: info?.decimals ?? 0,
+          amount: String(t.amount),
+        };
+      }),
       hashscanUrl: hashscanUrl('transaction', tx.transaction_id),
     };
   });

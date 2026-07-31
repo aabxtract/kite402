@@ -1,14 +1,15 @@
 {
-  "name": "x402-gateway",
+  "name": "kite402",
   "private": true,
   "type": "module",
   "workspaces": [
     "packages/*",
-    "apps/*"
+    "web",
+    "proxy"
   ],
   "scripts": {
-    "dev:proxy": "bun run --cwd apps/proxy dev",
-    "dev:web": "bun run --cwd apps/web dev",
+    "dev:proxy": "bun run --cwd proxy dev",
+    "dev:web": "bun run --cwd web dev",
     "db:generate": "bun run --cwd packages/shared db:generate",
     "db:push": "bun run --cwd packages/shared db:push"
   },

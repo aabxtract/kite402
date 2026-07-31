@@ -18,5 +18,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true
   },
-  "include": ["packages/**/*.ts", "apps/proxy/**/*.ts"]
+  "include": ["packages/**/*.ts", "proxy/**/*.ts"]
 }

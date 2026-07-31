@@ -1,12 +1,12 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
     "paths": {
-      "@x402-gateway/shared/schema": ["../../packages/shared/src/schema.ts"],
-      "@x402-gateway/shared/crypto": ["../../packages/shared/src/crypto.ts"],
-      "@x402-gateway/shared/db": ["../../packages/shared/src/db.ts"]
+      "@x402-gateway/shared/schema": ["../packages/shared/src/schema.ts"],
+      "@x402-gateway/shared/crypto": ["../packages/shared/src/crypto.ts"],
+      "@x402-gateway/shared/db": ["../packages/shared/src/db.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"]
