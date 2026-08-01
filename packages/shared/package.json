@@ -16,6 +16,6 @@
     "@neondatabase/serverless": "^1.1.0"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.30.0"
+    "drizzle-kit": "^0.31.10"
   }
 }
