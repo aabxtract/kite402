@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useHederaAccount } from '../../../lib/useHederaAccount';
-import { ConnectWalletCTA } from '../../../components/ConnectWalletCTA';
+import { RequireAuth } from '../../../components/RequireAuth';
 import { BTN_GHOST } from '../../../lib/ui';
 
 export default function Settings() {
@@ -11,21 +11,8 @@ export default function Settings() {
   const { userRecord } = useHederaAccount();
   const [copied, setCopied] = useState(false);
 
-  if (ready && !authenticated) {
-    return (
-      <div className="space-y-6">
-        <h1 className="font-display text-3xl font-semibold tracking-tight">Settings</h1>
-        <div className="space-y-4 rounded-xl border border-dashed border-line p-8 text-center">
-          <p className="font-sans text-sm text-dim">Connect your wallet to view account settings.</p>
-          <div className="flex justify-center">
-            <ConnectWalletCTA />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
+    <RequireAuth>
     <div className="space-y-6">
       <h1 className="font-display text-3xl font-semibold tracking-tight">Settings</h1>
 
@@ -67,5 +54,6 @@ export default function Settings() {
         </div>
       </div>
     </div>
+    </RequireAuth>
   );
 }

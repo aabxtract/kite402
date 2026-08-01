@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
-import { ConnectWalletCTA } from '../../../components/ConnectWalletCTA';
+import { RequireAuth } from '../../../components/RequireAuth';
 import { Spinner } from '../../../components/Spinner';
 import { PROXY_URL } from '../../../lib/proxyUrl';
 
@@ -80,6 +80,7 @@ export default function History() {
   }, [ready, authenticated, getAccessToken]);
 
   return (
+    <RequireAuth>
     <div className="space-y-6">
       <div className="space-y-2">
         <h1 className="font-display text-3xl font-semibold tracking-tight">History</h1>
@@ -87,15 +88,6 @@ export default function History() {
           Every on-chain transaction for your embedded Hedera account, read live from the network.
         </p>
       </div>
-
-      {ready && !authenticated && (
-        <div className="space-y-4 rounded-xl border border-dashed border-line p-8 text-center">
-          <p className="font-sans text-sm text-dim">Connect your wallet to view your transaction history.</p>
-          <div className="flex justify-center">
-            <ConnectWalletCTA />
-          </div>
-        </div>
-      )}
 
       {authenticated && loading && (
         <div className="flex justify-center py-12">
@@ -157,5 +149,6 @@ export default function History() {
         </div>
       )}
     </div>
+    </RequireAuth>
   );
 }
