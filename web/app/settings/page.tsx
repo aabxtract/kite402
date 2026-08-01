@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useHederaAccount } from '../../lib/useHederaAccount';
 import { ConnectWalletCTA } from '../../components/ConnectWalletCTA';

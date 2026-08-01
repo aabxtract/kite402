@@ -40,7 +40,8 @@
       "Bash(grep -rln \"\\\\.\\\\./\\\\.\\\\./packages\\\\|x402-gateway/apps\\\\|apps/proxy\\\\|apps/web\" --include=\"*.json\" --include=\"*.ts\" --include=\"*.tsx\" --include=\"*.md\" x402-gateway)",
       "Bash(grep -n \"PATH\\\\|\\\\.\\\\./\\\\|/apps/\\\\|x402-gateway\" .env)",
       "Bash(echo \"\\(root tsc exit: $?\\)\")",
-      "Bash(../node_modules/.bin/tsc --noEmit -p tsconfig.json)"
+      "Bash(../node_modules/.bin/tsc --noEmit -p tsconfig.json)",
+      "Bash(bun --env-file=.env run packages/shared/scripts/inspect-schema.ts)"
     ],
     "additionalDirectories": [
       "\\tmp"
