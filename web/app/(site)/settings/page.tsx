@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
-import { useHederaAccount } from '../../lib/useHederaAccount';
-import { ConnectWalletCTA } from '../../components/ConnectWalletCTA';
-import { BTN_GHOST } from '../../lib/ui';
+import { useHederaAccount } from '../../../lib/useHederaAccount';
+import { ConnectWalletCTA } from '../../../components/ConnectWalletCTA';
+import { BTN_GHOST } from '../../../lib/ui';
 
 export default function Settings() {
   const { ready, authenticated, user, logout } = usePrivy();

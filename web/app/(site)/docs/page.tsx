@@ -1,4 +1,4 @@
-import { ProtocolExchange } from '../../components/ProtocolExchange';
+import { ProtocolExchange } from '../../../components/ProtocolExchange';
 
 const STEPS = [
   {

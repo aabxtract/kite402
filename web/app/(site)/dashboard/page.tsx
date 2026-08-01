@@ -3,13 +3,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { Coins, MousePointerClick } from 'lucide-react';
-import { EndpointCard } from '../../components/EndpointCard';
-import { WalletPanel } from '../../components/WalletPanel';
-import { CreateEndpointForm } from '../../components/CreateEndpointForm';
-import { ConnectWalletCTA } from '../../components/ConnectWalletCTA';
-import { Modal } from '../../components/Modal';
-import { BTN_PRIMARY } from '../../lib/ui';
-import { PROXY_URL } from '../../lib/proxyUrl';
+import { EndpointCard } from '../../../components/EndpointCard';
+import { WalletPanel } from '../../../components/WalletPanel';
+import { CreateEndpointForm } from '../../../components/CreateEndpointForm';
+import { ConnectWalletCTA } from '../../../components/ConnectWalletCTA';
+import { Modal } from '../../../components/Modal';
+import { BTN_PRIMARY } from '../../../lib/ui';
+import { PROXY_URL } from '../../../lib/proxyUrl';
 
 interface Endpoint {
   slug: string;

@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
-import { ConnectWalletCTA } from '../../components/ConnectWalletCTA';
-import { Spinner } from '../../components/Spinner';
-import { PROXY_URL } from '../../lib/proxyUrl';
+import { ConnectWalletCTA } from '../../../components/ConnectWalletCTA';
+import { Spinner } from '../../../components/Spinner';
+import { PROXY_URL } from '../../../lib/proxyUrl';
 
 const TINYBARS_PER_HBAR = 100_000_000;
 

@@ -1,9 +1,9 @@
 import { Lock, Coins, Wallet, Link2, FileCheck2, KeyRound } from 'lucide-react';
-import { ProtocolExchange } from '../components/ProtocolExchange';
-import { ConnectWalletCTA } from '../components/ConnectWalletCTA';
-import { AuthRedirect } from '../components/AuthRedirect';
-import { SectionGlow } from '../components/SectionGlow';
-import { BTN_GHOST } from '../lib/ui';
+import { ProtocolExchange } from '../../components/ProtocolExchange';
+import { ConnectWalletCTA } from '../../components/ConnectWalletCTA';
+import { AuthRedirect } from '../../components/AuthRedirect';
+import { SectionGlow } from '../../components/SectionGlow';
+import { BTN_GHOST } from '../../lib/ui';
 
 const FEATURES = [
   {
