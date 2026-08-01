@@ -6,9 +6,16 @@
     "paths": {
       "@x402-gateway/shared/schema": ["../packages/shared/src/schema.ts"],
       "@x402-gateway/shared/crypto": ["../packages/shared/src/crypto.ts"],
-      "@x402-gateway/shared/db": ["../packages/shared/src/db.ts"],
-      "@x402-gateway/proxy/app": ["./types/proxy-app.d.ts"]
+      "@x402-gateway/shared/db": ["../packages/shared/src/db.ts"]
     }
   },
-  "include": ["next-env.d.ts", "types/**/*.d.ts", "**/*.ts", "**/*.tsx"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    // Hono's ContextVariableMap augmentation. The API route handlers pull the
+    // proxy's sources into this program, so without it every c.get(...) on
+    // those routes resolves to `never`.
+    "../proxy/src/types.ts"
+  ]
 }

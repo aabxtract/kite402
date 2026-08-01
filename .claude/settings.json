@@ -45,7 +45,10 @@
       "Bash(bun x *)",
       "Bash(cp /tmp/wd-test.ts proxy/scripts/_wd-test.ts)",
       "Bash(bun --env-file=.env run proxy/scripts/_wd-test.ts)",
-      "Bash(npx vercel *)"
+      "Bash(npx vercel *)",
+      "Bash(grep -iE \"error|cannot read|undefined|fetch|Error:\" /tmp/next.log | head -30)",
+      "Bash(tail -40 /tmp/next2.log)",
+      "Bash(node -e ' *)"
     ],
     "additionalDirectories": [
       "\\tmp"
