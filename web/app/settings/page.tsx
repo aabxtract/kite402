@@ -8,6 +8,7 @@ import { BTN_GHOST } from '../../lib/ui';
 export default function Settings() {
   const { ready, authenticated, user, logout } = usePrivy();
   const { userRecord } = useHederaAccount();
+  const [copied, setCopied] = useState(false);
 
   if (ready && !authenticated) {
     return (
@@ -36,9 +37,23 @@ export default function Settings() {
         <div className="space-y-1">
           <p className="font-sans text-sm text-dim">Hedera account</p>
           {userRecord?.hederaAccountId ? (
-            <code className="inline-block rounded-md border border-line bg-ink px-3 py-1.5 font-mono text-sm text-mint">
-              {userRecord.hederaAccountId}
-            </code>
+            <button
+              type="button"
+              onClick={() => {
+                if (userRecord.hederaAccountId) {
+                  navigator.clipboard.writeText(userRecord.hederaAccountId);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }
+              }}
+              title="Click to copy account ID"
+              className="group flex items-center gap-2 cursor-pointer rounded-md border border-line bg-paper px-3 py-1.5 font-mono text-sm text-ink hover:bg-raised transition-colors"
+            >
+              <span>{userRecord.hederaAccountId}</span>
+              <span className="font-sans text-xs text-dim group-hover:text-ink transition-colors">
+                {copied ? 'copied ✓' : '📋 copy'}
+              </span>
+            </button>
           ) : (
             <p className="font-sans text-sm text-dim/70">provisioning…</p>
           )}

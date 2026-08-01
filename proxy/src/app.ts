@@ -13,10 +13,23 @@ import { userRouter } from './routes/user';
  */
 export const app = new Hono();
 
-// Paid endpoints are meant to be called cross-origin by arbitrary agents and
-// scripts, so they stay open. /admin and /api/user are authenticated and are
-// now served same-origin with the dashboard, so they get no CORS grant.
-app.use('/p/*', cors());
+// Enable CORS for all endpoints so web frontend on port 3000 can communicate with proxy on port 3001
+app.use('*', cors());
+
+// Root health check endpoint
+app.get('/', (c) =>
+  c.json({
+    status: 'ok',
+    service: 'x402-gateway-proxy',
+    endpoints: {
+      proxy: '/p/:slug',
+      admin: '/admin/endpoints',
+      user: '/api/user/me',
+    },
+  }),
+);
+
 app.route('/p', proxyRouter);
 app.route('/admin', adminRouter);
 app.route('/api/user', userRouter);
+

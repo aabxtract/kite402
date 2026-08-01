@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 interface EndpointCardProps {
   slug: string;
   protectedUrl: string;
@@ -27,6 +29,14 @@ export function EndpointCard({
   requestCount,
   clickCount,
 }: EndpointCardProps) {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(protectedUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   return (
     <div className="rounded-lg border border-line bg-surface p-4 font-mono text-sm">
       <div className="flex items-center justify-between gap-4">
@@ -38,9 +48,16 @@ export function EndpointCard({
         </span>
       </div>
 
-      <p className="mt-2 break-all rounded-md border border-line bg-ink px-3 py-2 text-xs text-paper/90">
-        {protectedUrl}
-      </p>
+      <div
+        onClick={handleCopy}
+        title="Click to copy protected URL"
+        className="group mt-2 flex cursor-pointer items-center justify-between gap-2 rounded-md border border-line bg-paper px-3 py-2 text-xs text-ink hover:bg-raised transition-colors"
+      >
+        <span className="break-all">{protectedUrl}</span>
+        <span className="shrink-0 font-sans text-xs text-dim group-hover:text-ink transition-colors">
+          {copied ? 'copied ✓' : ' copy'}
+        </span>
+      </div>
 
       <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-dim">
         {priceHbar && <span className="text-mint">{formatPrice(priceHbar, 100_000_000)} HBAR</span>}

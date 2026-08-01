@@ -203,11 +203,14 @@ userRouter.get('/transactions', async (c) => {
 
   const network = process.env.HEDERA_NETWORK === 'mainnet' ? 'mainnet-public' : 'testnet';
   const mirrorBase = `https://${network}.mirrornode.hedera.com`;
-  const url = `${mirrorBase}/api/v1/accounts/${user.hederaAccountId}/transactions?limit=25&order=desc`;
+  const url = `${mirrorBase}/api/v1/transactions?account.id=${user.hederaAccountId}&limit=25&order=desc`;
 
   let data: MirrorTransactionsResponse;
   try {
     const res = await fetch(url);
+    if (res.status === 404) {
+      return c.json({ transactions: [] });
+    }
     if (!res.ok) throw new Error(`Mirror node returned ${res.status}`);
     data = (await res.json()) as MirrorTransactionsResponse;
   } catch (e) {

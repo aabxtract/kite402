@@ -49,6 +49,7 @@ export function CreateEndpointForm({ onCreated }: { onCreated?: () => void } = {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState<'agent' | 'human' | null>(null);
+  const [copiedAddress, setCopiedAddress] = useState(false);
 
   useEffect(() => {
     if (authenticated) return;
@@ -133,16 +134,28 @@ export function CreateEndpointForm({ onCreated }: { onCreated?: () => void } = {
           </label>
           {authenticated ? (
             linkedAccountId ? (
-              <p className="rounded-md border border-line bg-ink px-3 py-2.5 font-mono text-sm text-mint">
-                {linkedAccountId}
-              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(linkedAccountId);
+                  setCopiedAddress(true);
+                  setTimeout(() => setCopiedAddress(false), 2000);
+                }}
+                title="Click to copy account ID"
+                className="group flex w-full items-center justify-between cursor-pointer rounded-md border border-line bg-paper px-3 py-2.5 font-mono text-sm text-ink hover:bg-raised transition-colors focus:outline-none focus:ring-1 focus:ring-amber/50"
+              >
+                <span>{linkedAccountId}</span>
+                <span className="font-sans text-xs text-dim group-hover:text-ink transition-colors">
+                  {copiedAddress ? 'copied ✓' : '📋 copy'}
+                </span>
+              </button>
             ) : syncError ? (
               <p className="rounded-md border border-alert/40 bg-alert/10 px-3 py-2.5 font-mono text-sm text-alert">
                 {syncError}
               </p>
             ) : (
-              <div className="flex items-center justify-center rounded-md border border-line bg-ink px-3 py-2.5">
-                <Spinner className="h-4 w-4 text-paper" />
+              <div className="flex items-center justify-center rounded-md border border-line bg-paper px-3 py-2.5">
+                <Spinner className="h-4 w-4 text-dim" />
               </div>
             )
           ) : (
@@ -235,25 +248,35 @@ export function CreateEndpointForm({ onCreated }: { onCreated?: () => void } = {
             <p className="text-xs text-dim">— endpoint created —</p>
 
             <p className="mt-4 text-xs text-dim">agent / API URL — for x402-aware clients (scripts, agents)</p>
-            <p className="mt-1 break-all rounded-md border border-line bg-ink px-3 py-2 text-mint">
+            <p
+              onClick={() => copyUrl(result.protectedUrl, 'agent')}
+              title="Click to copy"
+              className="mt-1 cursor-pointer break-all rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink hover:bg-raised transition-colors"
+            >
               {result.protectedUrl}
             </p>
             <button
               onClick={() => copyUrl(result.protectedUrl, 'agent')}
-              className="mt-2 w-full cursor-pointer rounded-md border border-mint/50 px-4 py-2 text-xs font-semibold text-mint transition-colors hover:bg-mint/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-mint"
+              className="mt-2 w-full cursor-pointer rounded-md border border-line bg-paper px-4 py-2 text-xs font-semibold text-ink transition-colors hover:bg-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-amber"
             >
               {copied === 'agent' ? 'copied ✓' : 'copy agent URL'}
             </button>
 
             <p className="mt-5 text-xs text-dim">human paywall URL — opens in a browser, pay with a Hedera wallet</p>
-            <p className="mt-1 break-all rounded-md border border-line bg-ink px-3 py-2 text-amber">
+            <p
+              onClick={() =>
+                copyUrl(`${window.location.origin}/pay/${result.slug}`, 'human')
+              }
+              title="Click to copy"
+              className="mt-1 cursor-pointer break-all rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink hover:bg-raised transition-colors"
+            >
               {typeof window !== 'undefined' ? `${window.location.origin}/pay/${result.slug}` : `/pay/${result.slug}`}
             </p>
             <button
               onClick={() =>
                 copyUrl(`${window.location.origin}/pay/${result.slug}`, 'human')
               }
-              className="mt-2 w-full cursor-pointer rounded-md border border-mint/50 px-4 py-2 text-xs font-semibold text-mint transition-colors hover:bg-mint/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-mint"
+              className="mt-2 w-full cursor-pointer rounded-md border border-line bg-paper px-4 py-2 text-xs font-semibold text-ink transition-colors hover:bg-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-amber"
             >
               {copied === 'human' ? 'copied ✓' : 'copy human URL'}
             </button>

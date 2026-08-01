@@ -138,7 +138,7 @@ export default function PayPage() {
               sandbox=""
             />
           ) : (
-            <pre className="max-h-96 overflow-auto rounded-md border border-line bg-ink p-3 font-mono text-xs text-paper/90 whitespace-pre-wrap">
+            <pre className="max-h-96 overflow-auto rounded-md border border-line bg-paper p-3 font-mono text-xs text-ink whitespace-pre-wrap">
               {result.body}
             </pre>
           )}

@@ -12,6 +12,7 @@ const TINYBARS_PER_HBAR = 100_000_000;
 export function WalletPanel() {
   const { authenticated } = usePrivy();
   const { userRecord, balanceHbar, isSyncing, syncError, syncUser, signRawHash, getAccessToken } = useHederaAccount();
+  const [copiedAccount, setCopiedAccount] = useState(false);
 
   // Withdraw state
   const [withdrawDest, setWithdrawDest] = useState('');
@@ -20,6 +21,7 @@ export function WalletPanel() {
   const [withdrawResult, setWithdrawResult] = useState<{ transactionId: string; hashscanUrl: string } | null>(null);
   const [withdrawError, setWithdrawError] = useState<string | null>(null);
   const [showWithdraw, setShowWithdraw] = useState(false);
+
 
   async function handleWithdraw() {
     if (!withdrawDest.trim() || !withdrawAmount.trim()) return;
@@ -100,10 +102,24 @@ export function WalletPanel() {
           <div className="space-y-1">
             <p className="font-sans text-sm text-dim">Hedera Account</p>
             {userRecord.hederaAccountId ? (
-              <div className="flex items-center gap-2">
-                <code className="rounded-md border border-line bg-ink px-3 py-1.5 font-mono text-sm text-mint">
-                  {userRecord.hederaAccountId}
-                </code>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (userRecord.hederaAccountId) {
+                      navigator.clipboard.writeText(userRecord.hederaAccountId);
+                      setCopiedAccount(true);
+                      setTimeout(() => setCopiedAccount(false), 2000);
+                    }
+                  }}
+                  title="Click to copy account ID"
+                  className="group flex items-center gap-2 cursor-pointer rounded-md border border-line bg-paper px-3 py-1.5 font-mono text-sm text-ink hover:bg-raised transition-colors focus:outline-none focus:ring-1 focus:ring-amber/50"
+                >
+                  <span>{userRecord.hederaAccountId}</span>
+                  <span className="font-sans text-xs text-dim group-hover:text-ink transition-colors">
+                    {copiedAccount ? 'copied ✓' : ' copy'}
+                  </span>
+                </button>
                 <a
                   href={`https://hashscan.io/testnet/account/${userRecord.hederaAccountId}`}
                   target="_blank"
