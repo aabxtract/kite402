@@ -10,6 +10,7 @@ import { useHederaWalletConnect } from '../../../lib/useHederaWalletConnect';
 import { createHederaWalletConnectSigner } from '../../../lib/hederaWalletConnectSigner';
 import { BTN_PRIMARY } from '../../../lib/ui';
 import { PROXY_URL } from '../../../lib/proxyUrl';
+import { Spinner } from '../../../components/Spinner';
 
 const TINYBARS_PER_HBAR = 100_000_000;
 const UNITS_PER_USDC = 1_000_000;
@@ -113,56 +114,93 @@ export default function PayPage() {
     }
   }
 
-  return (
-    <div className="mx-auto max-w-lg space-y-6 py-12">
-      <div className="space-y-1">
-        <p className="font-mono text-xs text-dim">x402 paywall</p>
-        <h1 className="font-display text-2xl font-semibold tracking-tight">Unlock this content</h1>
-      </div>
-
-      {loadingChallenge && <p className="font-mono text-sm text-dim">Checking price…</p>}
-      {loadError && (
-        <p className="rounded-md border border-alert/40 bg-alert/10 px-3 py-2 font-mono text-xs text-alert">{loadError}</p>
-      )}
-
-      {result ? (
-        <div className="space-y-3 rounded-lg border border-mint/40 bg-surface p-5">
-          <p className="font-mono text-xs text-mint">✓ unlocked</p>
-          {result.hcsSequence && (
-            <p className="font-mono text-[11px] text-dim">HCS sequence #{result.hcsSequence}</p>
-          )}
+  // Once paid, the content is the point — give it the full width instead of
+  // keeping it boxed inside the paywall card.
+  if (result) {
+    return (
+      <div className="min-h-screen bg-paper px-5 py-10">
+        <div className="mx-auto max-w-3xl space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="font-mono text-sm text-mint">✓ unlocked</p>
+            {result.hcsSequence && (
+              <p className="font-mono text-xs text-dim">HCS sequence #{result.hcsSequence}</p>
+            )}
+          </div>
           {result.contentType?.includes('html') ? (
             <iframe
               srcDoc={result.body}
-              className="h-96 w-full rounded-md border border-line bg-white"
+              className="h-[70vh] w-full rounded-xl border border-line bg-white"
               sandbox=""
             />
           ) : (
-            <pre className="max-h-96 overflow-auto rounded-md border border-line bg-paper p-3 font-mono text-xs text-ink whitespace-pre-wrap">
+            <pre className="max-h-[70vh] overflow-auto rounded-xl border border-line bg-surface p-4 font-mono text-xs text-ink whitespace-pre-wrap">
               {result.body}
             </pre>
           )}
         </div>
-      ) : (
-        challenge?.accepts[0] && (
-          <div className="space-y-4 rounded-lg border border-line bg-surface p-5">
-            <div className="space-y-1">
-              <p className="font-mono text-xs text-dim">price</p>
-              <p className="font-display text-2xl font-semibold tracking-tight">
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-10">
+      {/* Dimmed backdrop so the card reads as a modal over the gated content. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-ink/85" />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-32 left-1/2 h-[34rem] w-[34rem] -translate-x-1/2 rounded-full blur-[130px]"
+        style={{ background: 'rgba(91,141,239,0.18)' }}
+      />
+
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="paywall-title"
+        className="relative w-full max-w-md rounded-2xl border border-line bg-paper p-8 shadow-[0_24px_64px_rgba(0,0,0,0.35)]"
+      >
+        <div className="flex flex-col items-center text-center">
+          <img src="/logo.png" alt="kite402" className="h-6 w-auto object-contain" />
+          <h1 id="paywall-title" className="mt-5 font-display text-2xl font-semibold tracking-tight">
+            Unlock this content
+          </h1>
+          <p className="mt-2 font-sans text-sm text-dim">
+            This link is protected by an x402 paywall. Pay once with a Hedera wallet to view it.
+          </p>
+        </div>
+
+        {loadingChallenge && (
+          <div className="mt-8 flex justify-center">
+            <Spinner className="h-5 w-5 text-dim" />
+          </div>
+        )}
+
+        {loadError && (
+          <p className="mt-6 rounded-md border border-alert/40 bg-alert/10 px-3 py-2 font-sans text-sm text-alert">
+            {loadError}
+          </p>
+        )}
+
+        {challenge?.accepts[0] && (
+          <div className="mt-8 space-y-5">
+            <div className="rounded-xl border border-line bg-surface px-5 py-4 text-center">
+              <p className="font-sans text-xs uppercase tracking-wide text-dim">price</p>
+              <p className="mt-1 font-display text-3xl font-semibold tracking-tight">
                 {formatPrice(challenge.accepts[0].asset, challenge.accepts[0].amount)}
               </p>
             </div>
 
             {accountId ? (
-              <p className="font-mono text-xs text-dim">
+              <p className="text-center font-sans text-xs text-dim">
                 connected: <span className="text-mint">{accountId}</span>
               </p>
             ) : (
-              <p className="font-mono text-xs text-dim">Connect a Hedera wallet (HashPack, Blade) to pay.</p>
+              <p className="text-center font-sans text-xs text-dim">
+                Connect a Hedera wallet (HashPack, Blade) to pay.
+              </p>
             )}
 
             {(walletError || payError) && (
-              <p className="rounded-md border border-alert/40 bg-alert/10 px-3 py-2 font-mono text-xs text-alert">
+              <p className="rounded-md border border-alert/40 bg-alert/10 px-3 py-2 font-sans text-sm text-alert">
                 {payError || walletError}
               </p>
             )}
@@ -172,11 +210,15 @@ export default function PayPage() {
               disabled={connecting || paying}
               className={`w-full ${BTN_PRIMARY}`}
             >
-              {connecting ? 'connecting…' : paying ? 'paying…' : accountId ? 'pay & unlock' : 'connect wallet & pay'}
+              {connecting ? 'connecting…' : paying ? 'paying…' : accountId ? 'Pay & unlock' : 'Connect wallet & pay'}
             </button>
+
+            <p className="text-center font-sans text-xs text-dim">
+              Payment settles on Hedera and is logged to a public HCS topic.
+            </p>
           </div>
-        )
-      )}
+        )}
+      </div>
     </div>
   );
 }

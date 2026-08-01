@@ -48,7 +48,13 @@
       "Bash(npx vercel *)",
       "Bash(grep -iE \"error|cannot read|undefined|fetch|Error:\" /tmp/next.log | head -30)",
       "Bash(tail -40 /tmp/next2.log)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(curl -s -m 25 -o /tmp/pay.html -w \"HTTP %{http_code} bytes=%{size_download}\\\\n\" http://localhost:3000/pay/testslug)",
+      "Bash(cp /tmp/slug.ts proxy/scripts/_slug.ts)",
+      "Bash(timeout 90 bun --env-file=.env run proxy/scripts/_slug.ts)",
+      "Bash(curl -s -m 30 -w \"\\\\nHTTP %{http_code}\\\\n\" http://localhost:3000/p/qkQfOPUZNr)",
+      "Bash(curl -s -m 15 -w \"\\\\nHTTP %{http_code}\\\\n\" http://localhost:3000/api/user/config-check)",
+      "Bash(curl -s -m 30 -w \"\\\\nHTTP %{http_code} time=%{time_total}s\\\\n\" http://localhost:3000/p/doesnotexist999)"
     ],
     "additionalDirectories": [
       "\\tmp"
