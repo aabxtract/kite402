@@ -41,7 +41,11 @@
       "Bash(grep -n \"PATH\\\\|\\\\.\\\\./\\\\|/apps/\\\\|x402-gateway\" .env)",
       "Bash(echo \"\\(root tsc exit: $?\\)\")",
       "Bash(../node_modules/.bin/tsc --noEmit -p tsconfig.json)",
-      "Bash(bun --env-file=.env run packages/shared/scripts/inspect-schema.ts)"
+      "Bash(bun --env-file=.env run packages/shared/scripts/inspect-schema.ts)",
+      "Bash(bun x *)",
+      "Bash(cp /tmp/wd-test.ts proxy/scripts/_wd-test.ts)",
+      "Bash(bun --env-file=.env run proxy/scripts/_wd-test.ts)",
+      "Bash(npx vercel *)"
     ],
     "additionalDirectories": [
       "\\tmp"
